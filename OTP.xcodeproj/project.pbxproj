@@ -8,6 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		9D139E2528A2029F003F9AB5 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 9D139E2428A2029F003F9AB5 /* main.c */; };
+		9D139E3E28A2061B003F9AB5 /* enc_client.c in Sources */ = {isa = PBXBuildFile; fileRef = 9D139E3D28A2061B003F9AB5 /* enc_client.c */; };
+		9D139E4028A20635003F9AB5 /* enc_server.c in Sources */ = {isa = PBXBuildFile; fileRef = 9D139E3F28A20635003F9AB5 /* enc_server.c */; };
+		9D139E4228A2064A003F9AB5 /* dec_server.c in Sources */ = {isa = PBXBuildFile; fileRef = 9D139E4128A2064A003F9AB5 /* dec_server.c */; };
+		9D139E4428A20658003F9AB5 /* dec_client.c in Sources */ = {isa = PBXBuildFile; fileRef = 9D139E4328A20658003F9AB5 /* dec_client.c */; };
+		9D139E4628A20667003F9AB5 /* keygen.c in Sources */ = {isa = PBXBuildFile; fileRef = 9D139E4528A20667003F9AB5 /* keygen.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,6 +30,11 @@
 /* Begin PBXFileReference section */
 		9D139E2128A2029F003F9AB5 /* OTP */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = OTP; sourceTree = BUILT_PRODUCTS_DIR; };
 		9D139E2428A2029F003F9AB5 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
+		9D139E3D28A2061B003F9AB5 /* enc_client.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = enc_client.c; sourceTree = "<group>"; };
+		9D139E3F28A20635003F9AB5 /* enc_server.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = enc_server.c; sourceTree = "<group>"; };
+		9D139E4128A2064A003F9AB5 /* dec_server.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = dec_server.c; sourceTree = "<group>"; };
+		9D139E4328A20658003F9AB5 /* dec_client.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = dec_client.c; sourceTree = "<group>"; };
+		9D139E4528A20667003F9AB5 /* keygen.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = keygen.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +68,11 @@
 			isa = PBXGroup;
 			children = (
 				9D139E2428A2029F003F9AB5 /* main.c */,
+				9D139E4528A20667003F9AB5 /* keygen.c */,
+				9D139E4328A20658003F9AB5 /* dec_client.c */,
+				9D139E4128A2064A003F9AB5 /* dec_server.c */,
+				9D139E3F28A20635003F9AB5 /* enc_server.c */,
+				9D139E3D28A2061B003F9AB5 /* enc_client.c */,
 			);
 			path = OTP;
 			sourceTree = "<group>";
@@ -120,6 +135,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				9D139E2528A2029F003F9AB5 /* main.c in Sources */,
+				9D139E4028A20635003F9AB5 /* enc_server.c in Sources */,
+				9D139E4628A20667003F9AB5 /* keygen.c in Sources */,
+				9D139E3E28A2061B003F9AB5 /* enc_client.c in Sources */,
+				9D139E4428A20658003F9AB5 /* dec_client.c in Sources */,
+				9D139E4228A2064A003F9AB5 /* dec_server.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
