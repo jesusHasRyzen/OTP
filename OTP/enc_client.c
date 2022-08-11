@@ -51,6 +51,29 @@ void setupAddressStruct(struct sockaddr_in* address,
         hostInfo->h_length);
 }
 
+void send_all(int socket, char *buffer, int lenght)
+{
+//    printf("contents of buffer : %s\n", buffer);
+
+    char *ptr = buffer;
+    while (lenght > 0)
+    {
+        int charsWritten = send(socket, ptr, lenght, 0);
+        if (charsWritten < 0){
+          error("CLIENT: ERROR writing to socket");
+        }
+        if (charsWritten < strlen(ptr)){
+          printf("CLIENT: WARNING: Not all data written to socket!\n");
+        }
+//        printf("contents of ptr : %c\n", *ptr);
+
+        ptr = ptr + charsWritten;
+//        printf("contents of ptr : %s\n", *ptr);
+        lenght = lenght - charsWritten;
+    }
+}
+
+
 int main(int argc, char *argv[]) {
   int socketFD, portNumber, charsWritten, charsRead;
   struct sockaddr_in serverAddress;
@@ -113,7 +136,7 @@ int main(int argc, char *argv[]) {
         // Send message to server
         // Write to the server
 //          charsWritten = send(socketFD, header, strlen(header), 0);
-        buffer[strcspn(buffer, "\n")] = '\0';
+        buffer[strcspn(buffer, "\n")] = '\0';//+++++++++++++++++++++++++++++++++++++
 //        printf("contents being passed to send %s\n", buffer);
         if(buffer[0] == '\0')
         {
@@ -180,15 +203,15 @@ int main(int argc, char *argv[]) {
         }
 
         printf("CLIENT : sending: %s\n", key_sent);
-    printf("contents of key_sent : %s\n", key_sent);
-
-        charsWritten = send(socketFD, key_sent, 256, 0);
-        if (charsWritten < 0){
-          error("CLIENT: ERROR writing to socket");
-        }
-        if (charsWritten < strlen(key_sent)){
-          printf("CLIENT: WARNING: Not all data written to socket!\n");
-        }
+//    printf("contents of key_sent : %s\n", key_sent);
+    send_all(socketFD, key_sent, strlen(key_sent));
+//        charsWritten = send(socketFD, key_sent, 256, 0);
+//        if (charsWritten < 0){
+//          error("CLIENT: ERROR writing to socket");
+//        }
+//        if (charsWritten < strlen(key_sent)){
+//          printf("CLIENT: WARNING: Not all data written to socket!\n");
+//        }
 //    }
     //+++++++++++++++++++++++++++++++++++++++++
     
@@ -218,17 +241,17 @@ int main(int argc, char *argv[]) {
     
     
 //
-//  // Get return message from server
-//  // Clear out the buffer again for reuse
-//  memset(buffer, '\0', sizeof(buffer));
-//  // Read data from the socket, leaving \0 at end
-//  charsRead = recv(socketFD, buffer, sizeof(buffer) - 1, 0);
-//  if (charsRead < 0){
-//    error("CLIENT: ERROR reading from socket");
-//  }
-//  printf("CLIENT: I received this from the server: \"%s\"\n", buffer);
+  // Get return message from server
+  // Clear out the buffer again for reuse
+  memset(buffer, '\0', sizeof(buffer));
+  // Read data from the socket, leaving \0 at end
+  charsRead = recv(socketFD, buffer, sizeof(buffer) - 1, 0);
+  if (charsRead < 0){
+    error("CLIENT: ERROR reading from socket");
+  }
+  printf("CLIENT: I received this from the server: \"%s\"\n", buffer);
 
-  // Close the socket
+//   Close the socket
   close(socketFD);
   return 0;
 }

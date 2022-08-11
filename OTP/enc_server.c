@@ -13,6 +13,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
+static char const alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ ";
 
 int num_key[1000];
 //int plaintext[1000];
@@ -38,7 +39,53 @@ void set_key(char* buf)
         num_key[i] = buf[i];
     }
 }
+char otp_encryption(char buffer, char key)
+{
+    int buffValue, keyValue, returnValue;
+    for(int j =0; j < 27; j ++)
+    {
+        if(buffer == alphabet[j])
+        {
+            buffValue = j;
+//            printf("plaintext char value: %d\n", buffValue);
+        }
+        if(key == alphabet[j])
+        {
+            keyValue = j;
+//            printf("key char value: %d\n", keyValue);
+        }
+    }
+    
 
+    returnValue = buffValue + keyValue;
+//    printf("return char value before mod: %d\n", returnValue);
+
+    returnValue = returnValue % 26;
+    printf("return char value after mod: %d\n", returnValue);
+
+    return alphabet[returnValue];
+}
+void send_all(int socket, char *buffer, int lenght)
+{
+//    printf("contents of buffer : %s\n", buffer);
+
+    char *ptr = buffer;
+    while (lenght > 0)
+    {
+        int charsWritten = send(socket, ptr, lenght, 0);
+        if (charsWritten < 0){
+          error("CLIENT: ERROR writing to socket");
+        }
+        if (charsWritten < strlen(ptr)){
+          printf("CLIENT: WARNING: Not all data written to socket!\n");
+        }
+//        printf("contents of ptr : %c\n", *ptr);
+
+        ptr = ptr + charsWritten;
+//        printf("contents of ptr : %s\n", *ptr);
+        lenght = lenght - charsWritten;
+    }
+}
 
 
 // Set up the address struct for the server socket
@@ -126,7 +173,7 @@ int main(int argc, char *argv[]){
               printf("entered the break in plaintext\n");
               break;
           }
-          printf("SERVER plaintext : I received this from the client: \"%s\"\n", buffer);
+//          printf("SERVER plaintext : I received this from the client: \"%s\"\n", buffer);
     if (charsRead < 0){
       error("SERVER : ERROR reading from socket");
     }
@@ -134,30 +181,49 @@ int main(int argc, char *argv[]){
       do
       {
           memset(buffer, '\0', 256);
-          charsRead = recv(connectionSocket, buffer, 256, 0);
+          charsRead = recv(connectionSocket, buffer, 255, 0);
 //          set_key(buffer);
           total_keytext_read = total_keytext_read + charsRead;
+          printf("count of key chars read %d\n", total_keytext_read);
           strcat(buffer_key, buffer);
-          printf("SERVER key: I received this from the client: \"%s\"\n", buffer);
+          if(strchr(buffer, '\n') != NULL)
+          {
+              printf("entered the break in key\n");
+              break;
+          }
+//          printf("SERVER key: I received this from the client: \"%s\"\n", buffer);
           printf("SERVER key: I got this saved int he buffer key \"%s\"\n", buffer_key);
     if (charsRead < 0){
       error("SERVER : ERROR reading from socket");
     }
       }while(charsRead > 0);
       
+      printf("testing errors before encryption\n");
+      char encryptedText[total_keytext_read];
+      for (int i = 1; i < total_keytext_read; i++) {
+      encryptedText[i-1] = otp_encryption(plaintext[i], buffer_key[i]);
+      }
+      printf("testing errors after encryption\n");
+
+      printf("%s\n", encryptedText);
+      
 //    printf("SERVER: I received this from the client: \"%s\"\n", buffer);
     // Send a Success message back to the client
-    charsRead = send(connectionSocket, "I am the server, and I got your message", 39, 0);
-      printf("contents of plaintext\n");
+      send_all(connectionSocket, encryptedText, total_keytext_read);
+//    charsRead = send(connectionSocket, "I am the server, and I got your message", 39, 0);
+//      printf("contents of plaintext\n");
+//      printf("SERVER : count in plain text recieved %d\n", total_plaintext_read);
 
-      for (int i = 0; i < total_plaintext_read; i++) {
-          printf("%c", plaintext[i]);
-      }
-      printf("\ncontents of numkey\n");
-
-      for (int i = 0; i < total_keytext_read; i++) {
-          printf("%c", buffer_key[i]);
-      }
+//      for (int i = 0; i < total_plaintext_read; i++) {
+//          printf("%c", plaintext[i]);
+//      }
+//      printf("\ncontents of buf key\n");
+//      printf("SERVER : count in key text recieved %d\n", total_keytext_read);
+//
+////      printf("the buffer key : %s\n", buffer_key);
+//      for (int i = 0; i < total_keytext_read; i++) {
+//          printf("%c", buffer_key[i]);
+//      }
     if (charsRead < 0){
       error("ERROR writing to socket");
     }
