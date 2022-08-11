@@ -78,30 +78,34 @@ int main(int argc, char *argv[]) {
   }
   // Get input message from user
     char *header = "enc_client";
+    char *key_header = "\n";
     charsWritten = send(socketFD, header, strlen(header), 0);
 //+++++++++++++++++++++++++++++++++++++++++
     char *fileName = argv[1];
     FILE *fileDescriptor = fopen(fileName, "r");
+//    char *keyfileName = argv[2];
+//    FILE *keyDescriptor = fopen(keyfileName, "r");
     if(fileDescriptor == NULL)
     {
         error("error plaintext file\n");
         exit(1);
     }
     int fileContentSize = 0;
-    char fileContents[255];
+    int keyContentSize = 0;
+//    char key_Contents[256];
     while(fgets(buffer, sizeof(buffer) - 1, fileDescriptor) != NULL)
     {
 //          buffer[strcspn(buffer, "\n")] = '\0';
-
         fileContentSize = strlen(buffer);
+        
         // check for valid inputs
         for (int i = 0; i < fileContentSize-1; i++) {
-            if(buffer[i] == 32 || (buffer[i] > 64 && buffer[i] < 91))
+            if((buffer[i] == 32 || (buffer[i] > 64 && buffer[i] < 91)))
                {
                 continue;
             }
                else{
-                error("not valid character read\n");
+                error("CLIENT : not valid character read in plain text file\n");
                 exit(1);
             }
         }
@@ -111,6 +115,12 @@ int main(int argc, char *argv[]) {
 //          charsWritten = send(socketFD, header, strlen(header), 0);
         buffer[strcspn(buffer, "\n")] = '\0';
 //        printf("contents being passed to send %s\n", buffer);
+        if(buffer[0] == '\0')
+        {
+            printf("CLIENT : made into break loop\n");
+            break;
+        }
+//        printf("CLIENT : sending: %s\n", buffer);
         charsWritten = send(socketFD, buffer, strlen(buffer), 0);
         if (charsWritten < 0){
           error("CLIENT: ERROR writing to socket");
@@ -119,6 +129,67 @@ int main(int argc, char *argv[]) {
           printf("CLIENT: WARNING: Not all data written to socket!\n");
         }
     }
+    fclose(fileDescriptor);
+    char *keyfileName = argv[2];
+    FILE *keyDescriptor = fopen(keyfileName, "r");
+    if(keyDescriptor == NULL)
+    {
+        error("error key file\n");
+        exit(1);
+    }
+
+    charsWritten = send(socketFD, key_header, strlen(key_header), 0);
+    char key_Contents[256];
+    int max_size = 256;
+    int c;
+    char *key_sent = malloc(max_size);
+    if(key_sent == NULL)
+    {
+        printf("out of memory!!\n");
+        exit(1);
+    }
+
+//    while(fgets(key_Contents, sizeof(key_Contents)-1, keyDescriptor) != NULL)
+    while (((c = fgetc(keyDescriptor)) != EOF))
+    {
+        if (keyContentSize == max_size-1) {
+            max_size = max_size + 256;
+            key_sent = realloc(key_sent, max_size);
+        }
+        key_sent[keyContentSize] = c;
+        keyContentSize = keyContentSize +1;
+    }
+//        keyContentSize = strlen(key_Contents);
+        // check for valid inputs
+        for (int i = 0; i < keyContentSize-1; i++) {
+            if((key_sent[i] == 32 || (key_sent[i] > 64 && key_sent[i] < 91)))
+               {
+                continue;
+            }
+               else{
+                   printf("invalid char is :%c in count is %d\n", key_Contents[i], i);
+                error("CLIENT : not valid character read in key file\n");
+                exit(1);
+            }
+        }
+//        key_sent[strcspn(buffer, "\n")] = '\0';
+        if(key_sent[0] == '\0')
+        {
+            printf("CLIENT : made into break loop\n");
+//            break;
+        }
+
+        printf("CLIENT : sending: %s\n", key_sent);
+    printf("contents of key_sent : %s\n", key_sent);
+
+        charsWritten = send(socketFD, key_sent, 256, 0);
+        if (charsWritten < 0){
+          error("CLIENT: ERROR writing to socket");
+        }
+        if (charsWritten < strlen(key_sent)){
+          printf("CLIENT: WARNING: Not all data written to socket!\n");
+        }
+//    }
     //+++++++++++++++++++++++++++++++++++++++++
     
     
@@ -146,16 +217,16 @@ int main(int argc, char *argv[]) {
     
     
     
-    
-  // Get return message from server
-  // Clear out the buffer again for reuse
-  memset(buffer, '\0', sizeof(buffer));
-  // Read data from the socket, leaving \0 at end
-  charsRead = recv(socketFD, buffer, sizeof(buffer) - 1, 0);
-  if (charsRead < 0){
-    error("CLIENT: ERROR reading from socket");
-  }
-  printf("CLIENT: I received this from the server: \"%s\"\n", buffer);
+//
+//  // Get return message from server
+//  // Clear out the buffer again for reuse
+//  memset(buffer, '\0', sizeof(buffer));
+//  // Read data from the socket, leaving \0 at end
+//  charsRead = recv(socketFD, buffer, sizeof(buffer) - 1, 0);
+//  if (charsRead < 0){
+//    error("CLIENT: ERROR reading from socket");
+//  }
+//  printf("CLIENT: I received this from the server: \"%s\"\n", buffer);
 
   // Close the socket
   close(socketFD);
