@@ -47,12 +47,12 @@ char otp_encryption(char buffer, char key)
         if(buffer == alphabet[j])
         {
             buffValue = j;
-//            printf("plaintext char value: %d\n", buffValue);
+//            printf("enc server : plaintext char value: %d\n", buffValue);
         }
         if(key == alphabet[j])
         {
             keyValue = j;
-//            printf("key char value: %d\n", keyValue);
+//            printf("enc server : key char value: %d\n", keyValue);
         }
     }
     
@@ -60,10 +60,12 @@ char otp_encryption(char buffer, char key)
     returnValue = buffValue + keyValue;
     
 //    printf("return char value before mod: %d\n", returnValue);
-
-    returnValue = returnValue % 26;
+    if (returnValue > 26) {
+        returnValue = returnValue - 27;
+    }
+    returnValue =  returnValue % 27;
 //    printf("return char value after mod: %d\n", returnValue);
-    printf("the char value encrypted is %c\n", alphabet[returnValue]);
+//    printf("the char value encrypted is %c\n", alphabet[returnValue]);
     return alphabet[returnValue];
 }
 void send_all(int socket, char *buffer, int lenght)
