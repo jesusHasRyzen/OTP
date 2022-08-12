@@ -60,10 +60,10 @@ void send_all(int socket, char *buffer, int lenght)
     {
         int charsWritten = send(socket, ptr, lenght, 0);
         if (charsWritten < 0){
-          error("CLIENT: ERROR writing to socket");
+          error("CLIENT: ERROR writing to socket in key");
         }
         if (charsWritten < strlen(ptr)){
-          printf("CLIENT: WARNING: Not all data written to socket!\n");
+          error("CLIENT: WARNING: Not all data written to socket!\n");
         }
 //        printf("contents of ptr : %c\n", *ptr);
 
@@ -140,18 +140,21 @@ int main(int argc, char *argv[]) {
 //        printf("contents being passed to send %s\n", buffer);
         if(buffer[0] == '\0')
         {
-            printf("CLIENT : made into break loop\n");
+//            printf("CLIENT : made into break loop\n");
             break;
         }
 //        printf("CLIENT : sending: %s\n", buffer);
         charsWritten = send(socketFD, buffer, strlen(buffer), 0);
         if (charsWritten < 0){
-          error("CLIENT: ERROR writing to socket");
+          error("CLIENT: ERROR writing to socket in plaintext");
         }
         if (charsWritten < strlen(buffer)){
           printf("CLIENT: WARNING: Not all data written to socket!\n");
         }
+//        printf("client  looping first while loop\n");
+
     }
+//    printf("client pass the first while loop\n");
     fclose(fileDescriptor);
     char *keyfileName = argv[2];
     FILE *keyDescriptor = fopen(keyfileName, "r");
@@ -171,8 +174,8 @@ int main(int argc, char *argv[]) {
         printf("out of memory!!\n");
         exit(1);
     }
+//    printf("client starting the key while loop\n");
 
-//    while(fgets(key_Contents, sizeof(key_Contents)-1, keyDescriptor) != NULL)
     while (((c = fgetc(keyDescriptor)) != EOF))
     {
         if (keyContentSize == max_size-1) {
@@ -198,59 +201,46 @@ int main(int argc, char *argv[]) {
 //        key_sent[strcspn(buffer, "\n")] = '\0';
         if(key_sent[0] == '\0')
         {
-            printf("CLIENT : made into break loop\n");
+//            printf("CLIENT : made into break loop\n");
 //            break;
         }
 
-        printf("CLIENT : sending: %s\n", key_sent);
+//        printf("CLIENT : sending: %s\n", key_sent);
 //    printf("contents of key_sent : %s\n", key_sent);
     send_all(socketFD, key_sent, strlen(key_sent));
-//        charsWritten = send(socketFD, key_sent, 256, 0);
-//        if (charsWritten < 0){
-//          error("CLIENT: ERROR writing to socket");
-//        }
-//        if (charsWritten < strlen(key_sent)){
-//          printf("CLIENT: WARNING: Not all data written to socket!\n");
-//        }
-//    }
-    //+++++++++++++++++++++++++++++++++++++++++
-    
-    
-    
-//  printf("CLIENT: Enter text to send to the server, and then hit enter: ");
-//  // Clear out the buffer array
-//  memset(buffer, '\0', sizeof(buffer));
-//  // Get input from the user, trunc to buffer - 1 chars, leaving \0
-//  fgets(buffer, sizeof(buffer) - 1, stdin);
-//  // Remove the trailing \n that fgets adds
-//  buffer[strcspn(buffer, "\n")] = '\0';
-//
-//  // Send message to server
-//  // Write to the server
-//    charsWritten = send(socketFD, header, strlen(header), 0);
-//  charsWritten = send(socketFD, buffer, strlen(buffer), 0);
-//  if (charsWritten < 0){
-//    error("CLIENT: ERROR writing to socket");
-//  }
-//  if (charsWritten < strlen(buffer)){
-//    printf("CLIENT: WARNING: Not all data written to socket!\n");
-//  }
 
-    
-    
-    
-    
+//    printf("enc_client : after sendall\n");
+
 //
   // Get return message from server
   // Clear out the buffer again for reuse
+    char op_encryption[keyContentSize];
+    int countRecv = 0;
+    do{
+//        printf("enc_client : inside do while for recv\n");
   memset(buffer, '\0', sizeof(buffer));
-  // Read data from the socket, leaving \0 at end
-  charsRead = recv(socketFD, buffer, sizeof(buffer) - 1, 0);
-  if (charsRead < 0){
-    error("CLIENT: ERROR reading from socket");
-  }
-  printf("CLIENT: I received this from the server: \"%s\"\n", buffer);
+        memset(op_encryption, '\0', sizeof(op_encryption));
 
+  // Read data from the socket, leaving \0 at end
+
+  charsRead = recv(socketFD, buffer, sizeof(buffer) - 1, 0);
+        strcat(op_encryption, buffer);
+//        printf("CLIENT: I received this from the server in buffer : \"%s\"\n", buffer);
+
+//        printf("length of buffer %zu\n", strlen(buffer));
+        countRecv = countRecv + strlen(buffer);
+//        printf("chars read at the end of enc_client %d\n", charsRead);
+  if (charsRead < 0){
+//      break;
+    error("CLIENT: ERROR reading from socket line 215");
+    }
+//        strcat(op_encryption, buffer);
+//        printf("client: the count recv is at %d\n", countRecv);
+//        printf("CLIENT: I received this op_encryption[last]: \"%c\"\n", op_encryption[countRecv]);
+
+//  printf("CLIENT: I received this from the server in op_encryption: \"%s\"\n", op_encryption);
+        printf("%s", op_encryption);
+    }while(charsRead > 0 && op_encryption[countRecv-1] != '\n');
 //   Close the socket
   close(socketFD);
   return 0;
